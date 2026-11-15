@@ -23,6 +23,9 @@ type AIRecommendation = {
   uses: string[];
   missing: string[];
   why_it_matches: string;
+  cooking_time_minutes: number | null;
+  ingredients: { name: string; quantity: string | null; unit: string | null }[];
+  steps: { instruction: string; timer_minutes: number | null }[];
   recipe_id: number | null;
   recipe_source:
     | "database"
@@ -54,7 +57,7 @@ export default function RecipesPage() {
 
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
-  const [deletingRecipeId, setDeletingRecipeId] =
+  const [savingRecipeIndex, setSavingRecipeIndex] =
     useState<number | null>(null);
 
   // --------------------------------------------------
@@ -176,19 +179,13 @@ export default function RecipesPage() {
   }
 
   // --------------------------------------------------
-  // Delete AI-generated recipe
-  // --------------------------------------------------
+  // Save only the recipe selected by the user
 
-  async function deleteAIRecipe(recipeId: number) {
-    const confirmed = window.confirm(
-      "Delete this AI-generated recipe?\n\nThis will permanently remove the recipe from CookMate."
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    setDeletingRecipeId(recipeId);
+  async function saveAIRecipe(
+    recommendation: AIRecommendation,
+    index: number
+  ) {
+    setSavingRecipeIndex(index);
     setAiError("");
 
     try {
@@ -197,62 +194,54 @@ export default function RecipesPage() {
       } = await supabase.auth.getSession();
 
       if (!session) {
-        setAiError(
-          "Please log in to delete this recipe."
-        );
-
-        return;
+        throw new Error("Please log in to save this recipe.");
       }
 
       const response = await fetch(
-        `${API_URL}/api/ai/recipes/${recipeId}`,
+        `${API_URL}/api/ai/recommendations/save`,
         {
-          method: "DELETE",
+          method: "POST",
           headers: {
-            Authorization:
-              "Bearer " + session.access_token,
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + session.access_token,
           },
+          body: JSON.stringify({
+            name: recommendation.name,
+            description: recommendation.description,
+            cooking_time_minutes: recommendation.cooking_time_minutes,
+            ingredients: recommendation.ingredients,
+            steps: recommendation.steps,
+          }),
         }
       );
 
-      const data =
-        await response.json().catch(() => null);
+      const data = await response.json().catch(() => null);
 
       if (!response.ok) {
-        throw new Error(
-          data?.detail ||
-            "Unable to delete the recipe."
-        );
+        throw new Error(data?.detail || "Unable to save this recipe.");
       }
 
-      // Remove the deleted AI recommendation
       setAiRecommendations((current) =>
-        current.filter(
-          (recommendation) =>
-            recommendation.recipe_id !== recipeId
+        current.map((item, itemIndex) =>
+          itemIndex === index
+            ? {
+                ...item,
+                recipe_id: data.recipe_id,
+                recipe_source: "database",
+              }
+            : item
         )
       );
 
-      // Remove it from Recipe Matches too,
-      // if it is currently displayed there.
-      setRecipes((current) =>
-        current.filter(
-          (recipe) =>
-            recipe.recipe_id !== recipeId
-        )
-      );
     } catch (err) {
       setAiError(
-        err instanceof Error
-          ? err.message
-          : "Unable to delete the recipe."
+        err instanceof Error ? err.message : "Unable to save this recipe."
       );
     } finally {
-      setDeletingRecipeId(null);
+      setSavingRecipeIndex(null);
     }
   }
 
-  // --------------------------------------------------
   // Initial load
   // --------------------------------------------------
 
@@ -382,9 +371,7 @@ export default function RecipesPage() {
                 {aiRecommendations.map(
                   (recommendation, index) => {
 
-                    const isDeleting =
-                      deletingRecipeId ===
-                      recommendation.recipe_id;
+                    const isSaving = savingRecipeIndex === index;
 
                     return (
                       <article
@@ -491,49 +478,23 @@ export default function RecipesPage() {
                         <div className="mt-auto flex gap-3 pt-5">
 
                           {recommendation.recipe_id ? (
-                            <>
-                              {/* VIEW RECIPE */}
-
-                              <button
-                                type="button"
-                                disabled={isDeleting}
-                                onClick={() =>
-                                  router.push(
-                                    `/recipes/${recommendation.recipe_id}`
-                                  )
-                                }
-                                className="flex-1 rounded-xl bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
-                              >
-                                View Recipe
-                              </button>
-
-                              {/* DELETE ONLY AI-GENERATED RECIPES */}
-
-                              {recommendation.recipe_source ===
-                                "ai_generated" && (
-                                <button
-                                  type="button"
-                                  disabled={isDeleting}
-                                  onClick={() =>
-                                    deleteAIRecipe(
-                                      recommendation.recipe_id as number
-                                    )
-                                  }
-                                  className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
-                                >
-                                  {isDeleting
-                                    ? "Deleting..."
-                                    : "Delete"}
-                                </button>
-                              )}
-                            </>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                router.push(`/recipes/${recommendation.recipe_id}`)
+                              }
+                              className="block w-full rounded-xl bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700"
+                            >
+                              View Recipe
+                            </button>
                           ) : (
                             <button
                               type="button"
-                              disabled
-                              className="block w-full cursor-not-allowed rounded-xl bg-neutral-200 px-4 py-3 text-sm font-semibold text-neutral-500"
+                              disabled={isSaving}
+                              onClick={() => saveAIRecipe(recommendation, index)}
+                              className="block w-full rounded-xl bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                              Recipe Not Saved Yet
+                              {isSaving ? "Saving Recipe..." : "Save Recipe"}
                             </button>
                           )}
 

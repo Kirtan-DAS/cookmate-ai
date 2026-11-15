@@ -1,4 +1,5 @@
-﻿from fastapi import FastAPI
+import os
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
@@ -20,15 +21,23 @@ app = FastAPI(
 )
 
 
-# CORS
+# CORS: allow local development and the deployed frontend URL
+local_origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+deployed_origins = [
+    origin.strip().rstrip("/")
+    for origin in os.getenv("FRONTEND_URL", "").split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
+    allow_origins=list(dict.fromkeys(local_origins + deployed_origins)),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

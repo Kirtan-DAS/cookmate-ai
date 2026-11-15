@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import VoiceAssistant from "./voice-assistant";
 
 const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
+  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 type RecipeStep = {
   id: number;
@@ -196,7 +197,7 @@ export default function CookingPage({
         <div className="mx-auto max-w-3xl">
           <div className="rounded-2xl bg-white p-10 text-center shadow-sm">
             <div className="text-6xl">
-              🎉
+              COOKING
             </div>
 
             <h1 className="mt-6 text-4xl font-bold text-gray-900">
@@ -244,7 +245,7 @@ export default function CookingPage({
         <section className="rounded-2xl bg-white p-8 shadow-sm">
           {/* Progress */}
           <div className="mb-8">
-            <div className="mb-2 flex justify-between text-sm text-gray-600">
+            <div className="mb-2 flex justify-between gap-4 text-sm text-gray-600" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px" }}>
               <span>
                 Step {currentStep + 1} of {steps.length}
               </span>
@@ -305,6 +306,10 @@ export default function CookingPage({
             </div>
           )}
 
+          <VoiceAssistant
+            recipeTitle={`Recipe ${step.recipe_id}`}
+            currentStep={step.instruction}
+          />
           {/* Complete Step */}
           <button
             type="button"
