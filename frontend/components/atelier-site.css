@@ -1,0 +1,132 @@
+/* CookMate Atelier site-wide design layer */
+:root{--cm-ink:#20372d;--cm-green:#245c47;--cm-cream:#f7f5ef;--cm-copper:#bf794c}
+html{scroll-behavior:smooth}body{background:var(--cm-cream);-webkit-font-smoothing:antialiased}
+body :is(button,a,input,textarea,select,summary){transition:background-color .2s,border-color .2s,color .2s,box-shadow .2s,transform .2s}
+body :is(button,a,input,textarea,select,summary):focus-visible{outline:3px solid var(--cm-copper);outline-offset:3px}
+body :is(input,textarea,select){accent-color:var(--cm-green)}
+body :is(h1,h2){letter-spacing:-.04em}body h1{text-wrap:balance}
+body:has(header nav[aria-label="Primary navigation"]) main{background:var(--cm-cream)}
+body:has(header nav[aria-label="Primary navigation"]) main :is(h1,h2){color:var(--cm-ink);font-family:Georgia,serif;font-weight:500}
+body:has(header nav[aria-label="Primary navigation"]) main h1{line-height:1.1}
+body:has(header nav[aria-label="Primary navigation"]) main :is(.shadow-sm,.shadow-md){box-shadow:0 10px 30px #1c3c2b0a}
+body:has(header nav[aria-label="Primary navigation"]) main :is(.rounded-xl,.rounded-2xl,.rounded-3xl){border-radius:22px}
+body:has(header nav[aria-label="Primary navigation"]) main button:not(:disabled):active{transform:scale(.985)}
+.atelier-dashboard .atelier-hero{border-radius:34px;min-height:285px;padding:clamp(24px,5vw,58px);background:radial-gradient(circle at 85% 30%,#6c8860 0%,transparent 28%),radial-gradient(circle at 105% 110%,#b88c57 0%,transparent 30%),linear-gradient(120deg,#15382d,#2c5b45);box-shadow:0 24px 55px #163b2d20}
+.atelier-dashboard .atelier-hero h2{font-size:clamp(2.2rem,5vw,4.2rem);max-width:770px;letter-spacing:-.055em}
+.atelier-dashboard .atelier-quicklinks>a{position:relative;overflow:hidden;padding:28px;background:#fffefa}
+.atelier-dashboard .atelier-quicklinks>a:before{content:"↗";position:absolute;right:25px;top:20px;color:#8c9d8b;font-size:24px}
+.atelier-dashboard .atelier-quicklinks>a h3{font-family:Georgia,serif;font-size:1.5rem;font-weight:500}
+.atelier-dashboard .atelier-quicklinks>a:hover{transform:translateY(-4px)}
+.atelier-recipes .atelier-content{max-width:1320px}
+.atelier-recipes .atelier-content>div:first-child h1{font-family:Georgia,serif;font-size:clamp(2.6rem,5vw,4.8rem);font-weight:500}
+.atelier-recipes .atelier-recipe-card{border:1px solid #e5e4d9;border-radius:30px;background:#fffefa;box-shadow:0 12px 36px #23452c0b}
+.atelier-recipes .atelier-recipe-card:hover{border-color:#b4c5b1;box-shadow:0 22px 48px #23452c1c;transform:translateY(-4px)}
+.atelier-recipes .atelier-recipe-card h3{font-family:Georgia,serif;font-size:1.6rem;line-height:1.2}
+.atelier-recipes :is(input,select){border-radius:14px;background:#fffefa}
+.atelier-nutrition{background:var(--cm-cream);padding-bottom:110px}
+.atelier-nutrition h1{font-family:Georgia,serif;font-size:clamp(2.4rem,5vw,4.1rem);font-weight:500;line-height:1.1}
+.atelier-nutrition h2{font-family:Georgia,serif;font-size:1.75rem;font-weight:500}
+.atelier-nutrition .grid>div{border:1px solid #e7e5db;border-radius:24px;background:#fffefa;padding:24px;box-shadow:0 8px 26px #1c3c2b0a}
+.atelier-nutrition .grid>div p:nth-child(2){font-size:clamp(1.3rem,2.3vw,1.85rem);color:var(--cm-green)}
+.atelier-nutrition .space-y-3>div{border:1px solid #e7e5db;border-radius:20px;background:#fffefa;padding:20px}
+.atelier-nutrition input[type="date"]{border:1px solid #dcded2;border-radius:12px;background:#fffefa}
+@media(max-width:767px){body:has(header nav[aria-label="Primary navigation"]) main{padding-bottom:90px}.atelier-dashboard .atelier-hero{min-height:250px}.atelier-recipes .atelier-content{padding:24px 18px 100px}.atelier-nutrition{padding:24px 18px 110px}.atelier-nutrition .grid>div{padding:18px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+
+/* ATELIER DEEP EDITION: darker canvas, separated surface layers */
+:root{
+  --cm-canvas:#081b14;--cm-sidebar:#062318;--cm-surface:#102d20;
+  --cm-raised:#193e2c;--cm-border:#43634b;--cm-cream:#f7e9d3;
+  --cm-amber:#e8a23e;--cm-orange:#b95122;--cm-lime:#a6dc65;
+  --cm-text:#f6eddc;--cm-muted:#c5d1b9;
+}
+body{background:var(--cm-canvas);color:var(--cm-text)}
+body:has(.atelier-dashboard),body:has(.atelier-recipes),body:has(.atelier-nutrition){background:var(--cm-canvas)}
+body :is(.atelier-dashboard,.atelier-recipes,.atelier-nutrition){background:var(--cm-canvas)!important;color:var(--cm-text)!important}
+body :is(.atelier-dashboard,.atelier-recipes,.atelier-nutrition) :is(h1,h2,h3){color:var(--cm-text)}
+body :is(.atelier-dashboard,.atelier-recipes,.atelier-nutrition) :is(.text-neutral-900,.text-neutral-950,.text-stone-900){color:var(--cm-text)!important}
+body :is(.atelier-dashboard,.atelier-recipes,.atelier-nutrition) :is(.text-neutral-500,.text-neutral-600,.text-stone-600){color:var(--cm-muted)!important}
+body :is(.atelier-dashboard,.atelier-recipes,.atelier-nutrition) :is(.bg-white,.bg-neutral-50,.bg-gray-50){background:var(--cm-surface)!important}
+body :is(.atelier-dashboard,.atelier-recipes,.atelier-nutrition) :is(.border-neutral-200,.border-stone-200,.border-gray-200){border-color:#3a6049!important}
+body :is(.atelier-dashboard,.atelier-recipes,.atelier-nutrition) :is(.shadow-sm,.shadow-md){box-shadow:0 14px 32px #0003}
+body :is(.atelier-dashboard,.atelier-recipes,.atelier-nutrition) :is(.bg-green-700,.bg-emerald-700){background:#bb632b!important}
+body :is(.atelier-dashboard,.atelier-recipes,.atelier-nutrition) :is(input,select,textarea){background:#0b241a;color:#f9f1df;border:1px solid #55715a}
+body :is(.atelier-dashboard,.atelier-recipes,.atelier-nutrition) input::placeholder{color:#b8c5b4}
+body :is(.atelier-dashboard,.atelier-recipes,.atelier-nutrition) a:focus-visible{outline-color:var(--cm-amber)}
+body :is(.atelier-dashboard,.atelier-recipes,.atelier-nutrition) :is(button,a):hover{filter:brightness(1.07)}
+/* Top navigation with distinct glass-like depth */
+body:has(.atelier-dashboard) header,body:has(.atelier-recipes) header,body:has(.atelier-nutrition) header{
+  background:linear-gradient(95deg,#072217,#123625)!important;
+  border-bottom:1px solid #49634c!important;box-shadow:0 12px 35px #0005
+}
+body:has(.atelier-dashboard) header .atelier-brand,
+body:has(.atelier-recipes) header .atelier-brand,
+body:has(.atelier-nutrition) header .atelier-brand{color:#f6ead3!important;font-family:Georgia,serif;font-size:1.6rem}
+body:has(.atelier-dashboard) header nav[aria-label="Primary navigation"],
+body:has(.atelier-recipes) header nav[aria-label="Primary navigation"],
+body:has(.atelier-nutrition) header nav[aria-label="Primary navigation"]{background:#071e15!important;border:1px solid #3c5b43}
+body:has(.atelier-dashboard) header nav[aria-label="Primary navigation"] a,
+body:has(.atelier-recipes) header nav[aria-label="Primary navigation"] a,
+body:has(.atelier-nutrition) header nav[aria-label="Primary navigation"] a{color:#f1e5d3!important}
+body:has(.atelier-dashboard) header nav[aria-label="Primary navigation"] a[aria-current="page"],
+body:has(.atelier-recipes) header nav[aria-label="Primary navigation"] a[aria-current="page"],
+body:has(.atelier-nutrition) header nav[aria-label="Primary navigation"] a[aria-current="page"]{
+  background:linear-gradient(135deg,#bc632c,#8d371e)!important;color:white!important;
+  box-shadow:0 0 0 1px #e8a23e,0 5px 18px #b9512255
+}
+/* dashboard hero: deeper image-like atmosphere, no remote image requests */
+.atelier-dashboard .atelier-hero{
+ background:
+ radial-gradient(ellipse at 83% 47%,#e38a32bb 0%,#8a411a99 12%,transparent 29%),
+ radial-gradient(ellipse at 88% 20%,#6d9c45aa 0%,transparent 25%),
+ radial-gradient(ellipse at 100% 100%,#bc6a2c77 0%,transparent 32%),
+ linear-gradient(115deg,#28150e,#61351d 58%,#172e1d)!important;
+ border:1px solid #bd814d;box-shadow:inset 0 1px #f8c77d44,0 26px 48px #0007;
+}
+.atelier-dashboard .atelier-hero h2{color:#fff2d9!important;text-shadow:0 3px 20px #0006}
+.atelier-dashboard .atelier-hero p{color:#f5e1bf!important}
+.atelier-dashboard-content>section:not(.atelier-hero){
+ background:linear-gradient(145deg,#183a29,#102b1f)!important;
+ border:1px solid #41634c!important;box-shadow:0 16px 38px #0004
+}
+.atelier-dashboard-content>section:not(.atelier-hero) .rounded-2xl{
+ background:#214632!important;border:1px solid #486b4f!important
+}
+.atelier-dashboard-content>section:not(.atelier-hero) h2{font-family:Georgia,serif}
+.atelier-dashboard-content a[class*="bg-green"]{background:linear-gradient(120deg,#bb632b,#914020)!important}
+/* recipes: separate control panel and recipe gallery from backdrop */
+.atelier-recipes .atelier-content>div:first-child{padding:20px 0 30px}
+.atelier-recipes .atelier-recipe-card{
+ background:linear-gradient(155deg,#234632,#10271d)!important;
+ border:1px solid #5c7858!important;box-shadow:0 20px 35px #0005!important;
+}
+.atelier-recipes .atelier-recipe-card:hover{border-color:#e6aa60!important;box-shadow:0 24px 55px #0009!important}
+.atelier-recipes .atelier-recipe-card h3{color:#fff0d6!important}
+.atelier-recipes .atelier-recipe-card :is(.bg-green-50,.bg-emerald-50){background:#2d5037!important;color:#d5f6ad!important}
+.atelier-recipes .atelier-content :is(.bg-white,.bg-neutral-50){background:#153526!important;border:1px solid #41634c}
+.atelier-recipes .atelier-content button[class*="bg-green"]{background:linear-gradient(120deg,#b65c25,#81391d)!important}
+.atelier-recipes .atelier-content :is(.text-green-700,.text-emerald-700){color:#b8ed8b!important}
+/* nutrition: three depth levels, light data panels for maximum clarity */
+.atelier-nutrition .grid>div{
+ background:linear-gradient(145deg,#21462f,#153524)!important;
+ border:1px solid #557353;box-shadow:0 16px 32px #0005
+}
+.atelier-nutrition .grid>div p:nth-child(2){color:#c7ef91}
+.atelier-nutrition .space-y-3>div{background:#193927!important;border-color:#557353}
+.atelier-nutrition h1{color:#fff0d8!important}
+.atelier-nutrition .bg-emerald-600{background:#b4e577!important}
+/* mobile app dock */
+@media(max-width:767px){
+ body:has(.atelier-dashboard) nav[aria-label="Mobile navigation"],
+ body:has(.atelier-recipes) nav[aria-label="Mobile navigation"],
+ body:has(.atelier-nutrition) nav[aria-label="Mobile navigation"]{
+ background:#0c291d!important;border-top:1px solid #567358!important;
+ box-shadow:0 -10px 25px #0009!important}
+ body:has(.atelier-dashboard) nav[aria-label="Mobile navigation"] a,
+ body:has(.atelier-recipes) nav[aria-label="Mobile navigation"] a,
+ body:has(.atelier-nutrition) nav[aria-label="Mobile navigation"] a{color:#e5e6cc!important}
+ body:has(.atelier-dashboard) nav[aria-label="Mobile navigation"] a[aria-current="page"],
+ body:has(.atelier-recipes) nav[aria-label="Mobile navigation"] a[aria-current="page"],
+ body:has(.atelier-nutrition) nav[aria-label="Mobile navigation"] a[aria-current="page"]{color:#ffc077!important}
+}

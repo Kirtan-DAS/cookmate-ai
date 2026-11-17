@@ -1,0 +1,24 @@
+/* CookMate Atelier: scoped enhancement, no new packages */
+.atelier { --forest:#1e4d3c; --cream:#f8f6ef; --sage:#e8eee4; background:var(--cream); color:#20352b; }
+.atelier :is(h1,h2,h3){letter-spacing:-.035em}
+.atelier :is(button,a,input,select,summary){transition:background-color .18s ease,color .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+.atelier :is(button,a,input,select,summary):focus-visible{outline:3px solid #d28b57;outline-offset:3px}
+.atelier-dashboard>header{background:rgba(248,246,239,.95);border-color:#e4e4d8}
+.atelier-dashboard>header h1{font-family:Georgia,serif;font-size:1.6rem}
+.atelier-hero{position:relative;isolation:isolate;overflow:hidden;min-height:235px;display:flex;flex-direction:column;justify-content:center;background:radial-gradient(circle at 82% 10%,#477a5c 0%,transparent 35%),linear-gradient(120deg,#143b30,#275b42 65%,#1a4034);box-shadow:0 20px 45px #183b3022}
+.atelier-hero:after{content:'✳';position:absolute;right:4%;top:-60px;font-size:250px;line-height:1;color:#ffffff13;z-index:-1}
+.atelier-hero h2{max-width:660px;font-family:Georgia,serif;font-size:clamp(2rem,4vw,3.5rem);line-height:1.08;font-weight:500}
+.atelier-dashboard section.rounded-3xl,.atelier-account,.atelier-quicklinks>a{border-color:#e5e5db;box-shadow:0 7px 30px #20352b08}
+.atelier-dashboard section.rounded-3xl h2,.atelier-recipe-heading h2{font-family:Georgia,serif;font-weight:500;font-size:clamp(1.6rem,3vw,2.3rem)}
+.atelier-account[open]>summary{margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:1px solid #e5e5db}
+.atelier-quicklinks>a{background:#fffefb;border-radius:24px;min-height:150px}
+.atelier-quicklinks>a:hover{transform:translateY(-4px);border-color:#9eb5a2;box-shadow:0 16px 30px #20352b14}
+.atelier-recipes .atelier-content{max-width:1250px}
+.atelier-recipes .atelier-recipe-heading{border-top:1px solid #d9dfd3;padding-top:2.5rem}
+.atelier-recipe-card{border-radius:26px;background:#fffefa;border-color:#e8e6dc;box-shadow:0 6px 26px #1d3c2c0a;min-height:320px}
+.atelier-recipe-card:hover{box-shadow:0 20px 40px #1d3c2c1c;transform:translateY(-3px)}
+.atelier-recipe-card h3{font-family:Georgia,serif;font-weight:500;font-size:1.45rem;line-height:1.2}
+.atelier-recipe-card .bg-neutral-50{background:#f4f6ee}
+.atelier-recipes input,.atelier-recipes select{background:#fffefa}
+@media(max-width:640px){.atelier-hero{min-height:200px;padding:26px}.atelier-hero:after{font-size:170px;top:-20px}.atelier-dashboard>header h1{font-size:1.2rem}.atelier-recipe-card{min-height:0}}
+@media(prefers-reduced-motion:reduce){.atelier *{transition:none!important;animation:none!important;scroll-behavior:auto!important}}

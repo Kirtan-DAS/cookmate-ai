@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { supabase } from "@/lib/supabase";
+import "@/components/atelier.css";
 
 type RecipeMatch = {
   recipe_id: number;
@@ -47,11 +48,38 @@ export default function RecipesPage() {
   const [recipes, setRecipes] = useState<RecipeMatch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  // The global CookMate search sends users to /recipes?q=...
+  // Initialize the existing recipe filter from that search term.
+  useEffect(() => {
+    const term = new URLSearchParams(window.location.search).get("q") ?? "";
+    setSearch(term);
+    if (term) setVisibleCount(9);
+  }, []);
+
+  const [filter, setFilter] = useState<"all" | "ready" | "quick">("all");
+  const [sort, setSort] = useState<"match" | "time">("match");
+  const [visibleCount, setVisibleCount] = useState(9);
+  const [hideSimilar, setHideSimilar] = useState(true);
+  const visibleRecipes = recipes.filter(recipe => {
+    const term = search.trim().toLowerCase();
+    const searchable = [recipe.title, recipe.description ?? "", ...recipe.missing_ingredients].join(" ").toLowerCase();
+    return (!term || searchable.includes(term)) &&
+      (filter !== "ready" || recipe.missing_ingredients.length === 0) &&
+      (filter !== "quick" || (recipe.cooking_time_minutes != null && recipe.cooking_time_minutes <= 20));
+  }).sort((a,b) => sort === "time"
+    ? (a.cooking_time_minutes ?? 999) - (b.cooking_time_minutes ?? 999) || b.match_percentage - a.match_percentage
+    : b.match_percentage - a.match_percentage || (a.cooking_time_minutes ?? 999) - (b.cooking_time_minutes ?? 999));
+  const deduplicatedRecipes = hideSimilar ? visibleRecipes.filter((recipe, index, all) =>
+    all.findIndex(candidate => candidate.title.trim().toLowerCase() === recipe.title.trim().toLowerCase()) === index
+  ) : visibleRecipes;
+
 
   // --------------------------------------------------
   // CookMate AI
   // --------------------------------------------------
 
+  const aiRequestInProgress = useRef(false);
   const [aiRecommendations, setAiRecommendations] =
     useState<AIRecommendation[]>([]);
 
@@ -67,6 +95,7 @@ export default function RecipesPage() {
   async function loadRecipes() {
     setLoading(true);
     setError("");
+    setVisibleCount(9);
 
     try {
       const {
@@ -125,8 +154,12 @@ export default function RecipesPage() {
   // --------------------------------------------------
 
   async function loadAIRecommendations() {
+    if (aiRequestInProgress.current) return;
+    aiRequestInProgress.current = true;
+
     setAiLoading(true);
     setAiError("");
+    setAiRecommendations([]);
 
     try {
       const {
@@ -134,11 +167,7 @@ export default function RecipesPage() {
       } = await supabase.auth.getSession();
 
       if (!session) {
-        setAiError(
-          "Please log in to get CookMate AI recommendations."
-        );
-
-        return;
+        throw new Error("Please log in to get CookMate AI recommendations.");
       }
 
       const response = await fetch(
@@ -149,6 +178,7 @@ export default function RecipesPage() {
             Authorization:
               "Bearer " + session.access_token,
           },
+          cache: "no-store",
         }
       );
 
@@ -162,11 +192,17 @@ export default function RecipesPage() {
         );
       }
 
-      setAiRecommendations(
-        Array.isArray(data?.recommendations)
-          ? data.recommendations
-          : []
-      );
+      const recommendations = Array.isArray(data?.recommendations)
+        ? data.recommendations.slice(0, 2)
+        : [];
+
+      setAiRecommendations(recommendations);
+
+      if (recommendations.length === 0) {
+        setAiError(
+          "CookMate couldn't find suitable recipes this time. Check your pantry ingredients or try again."
+        );
+      }
     } catch (err) {
       setAiError(
         err instanceof Error
@@ -174,6 +210,7 @@ export default function RecipesPage() {
           : "Unable to get CookMate AI recommendations."
       );
     } finally {
+      aiRequestInProgress.current = false;
       setAiLoading(false);
     }
   }
@@ -254,10 +291,10 @@ export default function RecipesPage() {
   // --------------------------------------------------
 
   return (
-    <main className="min-h-screen bg-neutral-50 text-neutral-950">
+    <main className="atelier atelier-recipes min-h-screen bg-neutral-50 text-neutral-950">
       <Navbar />
 
-      <section className="mx-auto max-w-7xl px-6 py-10">
+      <section className="atelier-content mx-auto max-w-7xl px-6 py-10">
 
         {/* -------------------------------------------- */}
         {/* PAGE HEADER */}
@@ -333,8 +370,8 @@ export default function RecipesPage() {
               className="shrink-0 rounded-xl bg-green-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {aiLoading
-                ? "CookMate AI is thinking..."
-                : "Ask CookMate AI"}
+                ? "Finding your best recipes..."
+                : "Get My Best 2 Recipes"}
             </button>
           </div>
 
@@ -490,7 +527,7 @@ export default function RecipesPage() {
                           ) : (
                             <button
                               type="button"
-                              disabled={isSaving}
+                              disabled={savingRecipeIndex !== null}
                               onClick={() => saveAIRecipe(recommendation, index)}
                               className="block w-full rounded-xl bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
                             >
@@ -515,7 +552,7 @@ export default function RecipesPage() {
         {/* RECIPE MATCHES */}
         {/* ============================================ */}
 
-        <div className="mt-10 flex items-center justify-between">
+        <div className="atelier-recipe-heading mt-10 flex items-center justify-between">
 
           <div>
 
@@ -550,6 +587,21 @@ export default function RecipesPage() {
         {/* RECIPE MATCH CONTENT */}
         {/* -------------------------------------------- */}
 
+        <div className="mt-6 rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5">
+          <div className="grid gap-3 md:grid-cols-[1fr_auto_auto]">
+            <input aria-label="Search recipes" value={search} onChange={e => { setSearch(e.target.value); setVisibleCount(9); }} placeholder="Search recipes or missing ingredients" className="min-w-0 rounded-xl border border-neutral-300 px-4 py-3 text-sm outline-none focus:border-green-600" />
+            <select aria-label="Filter recipes" value={filter} onChange={e => { setFilter(e.target.value as typeof filter); setVisibleCount(9); }} className="rounded-xl border border-neutral-300 px-3 py-3 text-sm">
+              <option value="all">All recipes</option><option value="ready">Can cook now</option><option value="quick">20 minutes or less</option>
+            </select>
+            <select aria-label="Sort recipes" value={sort} onChange={e => setSort(e.target.value as typeof sort)} className="rounded-xl border border-neutral-300 px-3 py-3 text-sm">
+              <option value="match">Best pantry match</option><option value="time">Fastest first</option>
+            </select>
+          </div>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+            <label className="flex items-center gap-2 text-sm text-neutral-600"><input type="checkbox" checked={hideSimilar} onChange={e => { setHideSimilar(e.target.checked); setVisibleCount(9); }} className="accent-green-700" /> Group recipes with the same name</label>
+            <span className="text-sm text-neutral-500">{deduplicatedRecipes.length} shown in results · {recipes.length} total recipes</span>
+          </div>
+        </div>
         <div className="mt-6">
 
           {loading ? (
@@ -584,11 +636,14 @@ export default function RecipesPage() {
 
             </div>
 
+          ) : deduplicatedRecipes.length === 0 ? (
+            <div className="rounded-2xl border bg-white p-8 text-center text-neutral-600">No recipes match these filters. Try another search.</div>
           ) : (
 
+            <div>
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
 
-              {recipes.map((recipe) => (
+              {deduplicatedRecipes.slice(0, visibleCount).map((recipe) => (
 
                 <Link
                   key={recipe.recipe_id}
@@ -596,14 +651,14 @@ export default function RecipesPage() {
                   className="group block"
                 >
 
-                  <article className="h-full cursor-pointer rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-green-200 hover:shadow-md">
+                  <article className="atelier-recipe-card h-full cursor-pointer rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-green-200 hover:shadow-md">
 
                     {/* CARD HEADER */}
 
                     <div className="flex items-start justify-between gap-4">
 
                       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-50 text-sm font-bold text-green-700">
-                        🍳
+                        ✦
                       </div>
 
                       <span className="rounded-full bg-green-50 px-3 py-1 text-xs font-bold text-green-700">
@@ -690,7 +745,7 @@ export default function RecipesPage() {
 
                     {/* VIEW RECIPE */}
 
-                    <p className="mt-5 text-sm font-semibold text-green-700 opacity-0 transition group-hover:opacity-100">
+                    <p className="mt-5 text-sm font-semibold text-green-700 transition">
                       View recipe →
                     </p>
 
@@ -700,6 +755,10 @@ export default function RecipesPage() {
 
               ))}
 
+            </div>
+            {visibleCount < deduplicatedRecipes.length && (
+              <div className="mt-7 text-center"><button type="button" onClick={() => setVisibleCount(count => count + 9)} className="rounded-xl border border-green-700 px-6 py-3 text-sm font-semibold text-green-800 hover:bg-green-50">Load 9 more recipes</button></div>
+            )}
             </div>
 
           )}

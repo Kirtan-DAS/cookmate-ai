@@ -1,9 +1,10 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { supabase } from "@/lib/supabase";
+import { extractGroceryCandidates } from "@/lib/grocery-parser";
 
 type PantryItem = {
   id: number;
@@ -74,6 +75,11 @@ export default function PantryPage() {
 
   // Grocery bill scanner state
   const [scanFile, setScanFile] = useState<File | null>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const [cameraOpen, setCameraOpen] = useState(false);
   const [scannedItems, setScannedItems] = useState<ScannedItem[]>([]);
   const [scanning, setScanning] = useState(false);
   const [savingScanned, setSavingScanned] = useState(false);
@@ -155,104 +161,101 @@ export default function PantryPage() {
     setMessage("");
   }
 
-  // Scan grocery bill using Tesseract.js in the browser
+  function selectScanFile(file: File | null) {
+    clearNotifications();
+    if (file && (!file.type.startsWith("image/") || file.size > 10 * 1024 * 1024)) {
+      setError("Choose an image smaller than 10 MB.");
+      return;
+    }
+    setScanFile(file);
+    setScannedItems([]);
+    setScanProgress("");
+  }
+
+  function closeCamera() {
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+    if (videoRef.current) videoRef.current.srcObject = null;
+    setCameraOpen(false);
+  }
+
+  async function openCamera() {
+    clearNotifications();
+    if (!navigator.mediaDevices?.getUserMedia) {
+      // Mobile browser camera capture fallback.
+      cameraInputRef.current?.click();
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
+      streamRef.current = stream;
+      setCameraOpen(true);
+      // Video mounts on the next React render.
+      window.setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          void videoRef.current.play().catch(() => undefined);
+        }
+      }, 0);
+    } catch {
+      setError("Camera access failed. Allow camera permission or use Upload Image instead. Camera requires HTTPS or localhost.");
+    }
+  }
+
+  function capturePhoto() {
+    const video = videoRef.current;
+    if (!video?.videoWidth || !video.videoHeight) {
+      setError("Camera is not ready. Please wait a moment.");
+      return;
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.drawImage(video, 0, 0);
+    canvas.toBlob((blob) => {
+      if (blob) selectScanFile(new File([blob], `cookmate-photo-${Date.now()}.jpg`, { type: "image/jpeg" }));
+      closeCamera();
+    }, "image/jpeg", 0.92);
+  }
+
+  useEffect(() => () => {
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+  }, []);
+
   async function handleScanBill() {
     clearNotifications();
-
     if (!scanFile) {
-      setError("Please choose a grocery bill image first.");
+      setError("Take a photo or upload a grocery image first.");
       return;
     }
-
-    if (!scanFile.type.startsWith("image/")) {
-      setError("Please select a valid image.");
+    if (!scanFile.type.startsWith("image/") || scanFile.size > 10 * 1024 * 1024) {
+      setError("Choose a valid image smaller than 10 MB.");
       return;
     }
-
-    if (scanFile.size > 10 * 1024 * 1024) {
-      setError("Image must be smaller than 10 MB.");
-      return;
-    }
-
     setScanning(true);
     setScannedItems([]);
-    setScanProgress("Starting OCR...");
-
-    let worker: Awaited<
-      ReturnType<typeof import("tesseract.js").createWorker>
-    > | null = null;
-
+    setScanProgress("Reading text from your image...");
+    let worker: Awaited<ReturnType<typeof import("tesseract.js").createWorker>> | null = null;
     try {
       const { createWorker } = await import("tesseract.js");
-
       worker = await createWorker("eng");
-
-      setScanProgress("Reading your grocery bill...");
-
       const result = await worker.recognize(scanFile);
-      const rawText = result.data.text;
-
-      const ignoredWords =
-        /\b(total|subtotal|tax|gst|cgst|sgst|invoice|receipt|cash|change|discount|amount|balance|payment|thank you|round off|bill no|phone|address|date|time)\b/i;
-
-      const lines = rawText
-        .split(/\r?\n/)
-        .map((line) =>
-          line
-            .replace(/\s+/g, " ")
-            .replace(/\s+(?:₹|rs\.?)?\s*\d+[.,]\d{2}\s*$/i, "")
-            .trim()
-        )
-        .filter(
-          (line) =>
-            line.length >= 2 &&
-            /[a-zA-Z]/.test(line) &&
-            !ignoredWords.test(line) &&
-            !/^[\d\s.,₹/-]+$/.test(line)
-        );
-
-      const uniqueLines = Array.from(
-        new Set(lines.map((line) => line.slice(0, 100)))
-      );
-
-      const candidates: ScannedItem[] = uniqueLines.map(
-        (line, index) => ({
-          id: index,
-          name: line,
-          quantity: "",
-          unit: "",
-          category: "",
-          selected: false,
-        })
-      );
-
+      const candidates = extractGroceryCandidates(result.data.text);
       setScannedItems(candidates);
-
       if (candidates.length === 0) {
-        setError(
-          "No possible ingredients were detected. Try a clearer bill image."
-        );
         setScanProgress("");
+        setError("No confident grocery items detected. Try a clearer image or add ingredients manually. Handwriting may need a specialized OCR model.");
       } else {
-        setScanProgress(
-          `Found ${candidates.length} possible items. Review and select the ingredients you want.`
-        );
+        setScanProgress(`Found ${candidates.length} possible grocery items. Verify names, pack sizes and quantities before saving.`);
       }
     } catch (err) {
-      console.error("Bill OCR error:", err);
-
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Unable to read this bill. Please try another image."
-      );
-
+      console.error("Grocery scan failed:", err);
       setScanProgress("");
+      setError(err instanceof Error ? err.message : "Unable to read image.");
     } finally {
-      if (worker) {
-        await worker.terminate();
-      }
-
+      if (worker) await worker.terminate();
       setScanning(false);
     }
   }
@@ -314,12 +317,9 @@ export default function PantryPage() {
       setScannedItems([]);
       setScanFile(null);
       setScanProgress("");
+      if (galleryInputRef.current) galleryInputRef.current.value = "";
+      if (cameraInputRef.current) cameraInputRef.current.value = "";
 
-      const fileInput = document.getElementById(
-        "bill-image"
-      ) as HTMLInputElement | null;
-
-      if (fileInput) fileInput.value = "";
 
       await loadPantry();
 
@@ -650,10 +650,10 @@ export default function PantryPage() {
   }
 
   return (
-    <main className="min-h-screen bg-neutral-50 text-neutral-950">
+    <main className="cm-pantry-page min-h-screen bg-neutral-50 text-neutral-950">
       <Navbar />
 
-      <section className="mx-auto max-w-7xl px-6 py-10">
+      <section className="cm-pantry-content mx-auto max-w-7xl px-6 py-10">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-green-700">
@@ -703,39 +703,31 @@ export default function PantryPage() {
           </p>
 
           <h2 className="mt-2 text-2xl font-bold">
-            Scan your grocery bill
+            Scan receipts, lists and grocery screenshots
           </h2>
 
           <p className="mt-2 text-sm text-neutral-500">
-            Upload or capture a grocery bill. Review detected items before
+            Take a photo or upload a receipt, shopping-cart screenshot or handwritten list. Review detected items before
             adding them to your pantry.
           </p>
 
-          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <input
-              id="bill-image"
-              type="file"
-              accept="image/*"
-              capture="environment"
-              disabled={scanning || savingScanned}
-              onChange={(event) => {
-                setScanFile(event.target.files?.[0] ?? null);
-                setScannedItems([]);
-                setScanProgress("");
-                clearNotifications();
-              }}
-              className="w-full rounded-xl border border-neutral-300 p-3 text-sm"
-            />
-
-            <button
-              type="button"
-              onClick={handleScanBill}
-              disabled={!scanFile || scanning || savingScanned}
-              className="rounded-xl bg-green-700 px-6 py-3 font-semibold text-white transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {scanning ? "Scanning..." : "Scan Bill"}
-            </button>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <input ref={galleryInputRef} type="file" accept="image/*" className="hidden" aria-label="Upload grocery image" onChange={(event) => selectScanFile(event.target.files?.[0] ?? null)} />
+            <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" aria-label="Capture grocery image" onChange={(event) => selectScanFile(event.target.files?.[0] ?? null)} />
+            <button type="button" onClick={openCamera} disabled={scanning || savingScanned} className="rounded-xl border border-green-700 px-5 py-3 font-semibold text-green-700 disabled:opacity-50">Take Photo</button>
+            <button type="button" onClick={() => galleryInputRef.current?.click()} disabled={scanning || savingScanned} className="rounded-xl border border-neutral-300 px-5 py-3 font-semibold disabled:opacity-50">Upload Image / Screenshot</button>
+            <button type="button" onClick={handleScanBill} disabled={!scanFile || scanning || savingScanned} className="rounded-xl bg-green-700 px-6 py-3 font-semibold text-white disabled:opacity-50">{scanning ? "Scanning..." : "Recognize Groceries"}</button>
           </div>
+          {scanFile && <p className="mt-3 break-all text-sm text-neutral-600">Selected: {scanFile.name}</p>}
+          {cameraOpen && (
+            <div className="mt-4 rounded-2xl border border-neutral-200 p-4">
+              <video ref={videoRef} autoPlay playsInline muted className="max-h-[420px] w-full rounded-xl bg-black object-contain" />
+              <div className="mt-3 flex gap-3">
+                <button type="button" onClick={capturePhoto} className="rounded-xl bg-green-700 px-5 py-3 font-semibold text-white">Capture Photo</button>
+                <button type="button" onClick={closeCamera} className="rounded-xl border px-5 py-3">Cancel</button>
+              </div>
+            </div>
+          )}
 
           {scanProgress && (
             <p className="mt-4 text-sm text-green-700">
@@ -1293,7 +1285,7 @@ export default function PantryPage() {
                             disabled={adjustingId === item.id}
                             className="rounded-lg border border-orange-300 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700 hover:bg-orange-100 disabled:opacity-50"
                           >
-                            − Use
+                            - Use
                           </button>
                         </div>
                       </div>

@@ -1,0 +1,66 @@
+
+/* CookMate Atelier - screenshot-inspired responsive app shell */
+:root{--forest:#16381d;--forest-deep:#0d2814;--cream:#fbf8f3;--orange:#ed581c;--copper:#a6431d;--ink:#1d231b;--border:#e7ddce}
+.cm-app{min-height:100vh;background:#fbf8f3;color:var(--ink);font-size:14px}
+.cm-side{position:fixed;z-index:60;inset:0 auto 0 0;width:210px;background:radial-gradient(ellipse at 30% 100%,#456b27 0,transparent 28%),linear-gradient(160deg,#15391d,#0e2914);color:#fff;display:flex;flex-direction:column;padding:23px 11px 25px;box-shadow:4px 0 25px #10200e1c}
+.cm-brand{display:flex;flex-direction:column;align-items:center;color:#fff;text-decoration:none;font-family:Georgia,serif;font-size:29px;font-weight:bold;line-height:1.03;padding:10px 0 38px}
+.cm-brand .cm-chef{font-size:39px;color:#ffe9b6;font-weight:400;line-height:1.3}
+.cm-brand em{font-size:25px;font-weight:400}
+.cm-side-nav{display:flex;flex-direction:column;gap:13px}
+.cm-nav-link{display:flex;align-items:center;gap:17px;padding:16px 22px;color:#f5f6ef;border-radius:28px;text-decoration:none;font-size:16px;transition:background .2s}
+.cm-nav-link:hover{background:#ffffff16}
+.cm-nav-link.cm-active{background:linear-gradient(100deg,#f46822,#e94b15);box-shadow:0 4px 12px #070e0733;color:white}
+.cm-nav-icon{font-size:25px;min-width:26px;text-align:center}
+.cm-side-bottom{margin-top:auto;color:#b2cb8d;display:flex;align-items:center;flex-direction:column;gap:10px;font-family:Georgia,serif;font-size:13px;text-align:center}
+.cm-side-bottom span:first-child{font-size:72px;line-height:1}
+.cm-top{position:sticky;top:0;z-index:50;margin-left:210px;height:88px;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:0 30px 0 32px;background:#fbf8f3ee;backdrop-filter:blur(12px)}
+.cm-searchbar{display:flex;align-items:center;gap:12px;border:1px solid #e7d6c4;background:#fff9f4;border-radius:40px;height:52px;max-width:1040px;width:100%;padding:0 20px;box-shadow:inset 0 2px 5px #d7bda115}
+.cm-searchbar>span{font-size:30px;line-height:1}.cm-searchbar input{flex:1;min-width:0;background:transparent;outline:0;border:0;color:#29251f;font-size:15px}
+.cm-searchbar kbd{background:#f0ebe6;padding:5px 7px;border-radius:6px;font-size:12px}
+.cm-user{display:flex;align-items:center;gap:15px;position:relative}.cm-notify{font-size:28px;border:0;background:transparent;cursor:pointer;color:#32291c}
+.cm-avatar{border:0;background:transparent;display:flex;align-items:center;gap:12px;font-size:19px;cursor:pointer}.cm-avatar:first-letter{font-weight:700}
+.cm-avatar{color:#fff}.cm-avatar{background:#183b21;border-radius:50%;width:44px;height:44px;justify-content:center;position:relative}.cm-avatar span{position:absolute;left:50px;color:#20261e}
+.cm-account-menu{position:absolute;right:0;top:56px;width:240px;background:white;border-radius:18px;padding:12px;box-shadow:0 15px 40px #1c2b1e30;border:1px solid #eee5dc;display:flex;flex-direction:column;gap:3px}
+.cm-account-menu a,.cm-account-menu button{padding:12px 10px;border:0;background:none;text-align:left;color:#24261d;border-radius:10px;text-decoration:none;cursor:pointer}.cm-account-menu a:hover,.cm-account-menu button:hover{background:#f6f0e7}.cm-account-menu button{color:#b72e17}.cm-menu-email{padding:5px 10px;color:#73746e;font-size:11px;overflow-wrap:anywhere}
+.cm-main{margin-left:210px;margin-right:392px;padding:20px 24px 70px 30px;min-width:0}
+.cm-hero{height:295px;border-radius:24px;overflow:hidden;position:relative;background:linear-gradient(100deg,#2b180e,#654123);display:flex;box-shadow:0 8px 18px #34221b18}
+.cm-hero:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#25130f 0%,#2a160ef5 37%,#2a160e35 70%,transparent)}
+.cm-hero>img{position:absolute;right:0;top:0;width:52%;height:100%;object-fit:cover}
+.cm-hero-text{z-index:1;position:relative;padding:38px 32px;color:white}.cm-overline{font-size:11px;letter-spacing:.17em;color:#f8e1bf}
+.cm-hero h1{font-family:Georgia,serif;font-size:clamp(30px,2.7vw,43px);line-height:1.09;letter-spacing:-.035em;margin:11px 0 15px}
+.cm-hero p{line-height:1.6;font-size:14px;color:#f5e8da}
+.cm-hero-actions{display:flex;gap:12px;margin-top:19px}.cm-button{display:inline-flex;align-items:center;justify-content:center;border-radius:35px;text-decoration:none;padding:13px 22px;font-weight:700;white-space:nowrap}
+.cm-orange{background:#f16423;color:white}.cm-white{background:#fffaf1;color:#242018}
+.cm-shortcuts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin:26px 0 35px}
+.cm-shortcut{min-height:88px;border:1px solid #f1ddca;border-radius:18px;display:flex;align-items:center;gap:12px;padding:15px 13px;text-decoration:none;color:#191d15;transition:transform .2s,box-shadow .2s}
+.cm-shortcut:hover{transform:translateY(-3px);box-shadow:0 12px 20px #372c1d12}.cm-shortcut>span{font-size:29px;color:#cc6b16}.cm-shortcut>div{min-width:0}.cm-shortcut b{font-family:Georgia,serif;font-size:17px;display:block;white-space:nowrap}.cm-shortcut small{display:block;font-size:10px;margin-top:5px}.cm-shortcut strong{margin-left:auto;font-size:24px}
+.cm-shortcut.peach{background:#fff0e6}.cm-shortcut.sage{background:#edf2e1}.cm-shortcut.gold{background:#fff2d9}.cm-shortcut.blush{background:#ffe9eb}
+.cm-section-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.cm-section-head h2,.cm-nutrition-card h2{font-family:Georgia,serif;font-size:29px;font-weight:600;letter-spacing:-.03em}.cm-section-head h2 span{font-size:20px}.cm-section-head a,.cm-small-link{color:#c8461b;text-decoration:none;font-weight:700}
+.cm-filters{display:flex;align-items:center;gap:12px;overflow-x:auto;white-space:nowrap;padding:18px 0 15px;border-bottom:1px solid #eadfd4}
+.cm-filters button,.cm-filters a{border:0;background:transparent;border-radius:30px;padding:11px 15px;color:#1d2019;font-weight:600;text-decoration:none;cursor:pointer}
+.cm-filters .selected{background:#d84813;color:white}.cm-recipe-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px;margin-top:20px}
+.cm-recipe{overflow:hidden;background:white;border:1px solid #e5d8c8;border-radius:19px;color:#181d17;text-decoration:none;box-shadow:0 6px 15px #2a1c101a;transition:transform .2s}
+.cm-recipe:hover{transform:translateY(-4px)}.cm-recipe-photo{height:145px;position:relative;overflow:hidden}.cm-recipe-photo img{width:100%;height:100%;object-fit:cover}.cm-recipe-photo>span{position:absolute;top:10px;left:10px;background:#367b20;color:white;border-radius:20px;padding:5px 10px;font-size:11px;font-weight:bold}
+.cm-recipe-details{padding:12px 13px 16px;position:relative}.cm-recipe-details h3{font-family:Georgia,serif;font-size:18px;line-height:1.25;min-height:44px}.cm-recipe-details p{font-size:11px;color:#555;margin-top:7px}.cm-recipe-details p span{padding:0 5px}.cm-recipe-details i{position:absolute;right:12px;bottom:13px;border-radius:50%;background:#d64b19;color:white;width:25px;height:25px;display:grid;place-items:center;font-style:normal;font-size:10px}
+.cm-right{position:absolute;right:20px;top:105px;width:350px;display:flex;flex-direction:column;gap:19px}.cm-leaves{height:117px;background:linear-gradient(130deg,#f7ecd9,#fff8ed);border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:75px}
+.cm-nutrition-card,.cm-pantry-card{border:1px solid #e1dfc8;border-radius:25px;padding:22px 18px;background:linear-gradient(140deg,#f6f7e8,#f2f2df)}.cm-nutrition-card h2{font-size:25px}.cm-nutrition-card h2 span{font-size:18px}
+.cm-nutrition-body{display:flex;align-items:center;gap:16px;margin:19px 0}.cm-calorie-ring{width:145px;height:145px;flex-shrink:0;border-radius:50%;display:grid;place-items:center}.cm-calorie-ring>div{background:#f4f6e9;width:113px;height:113px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center}.cm-calorie-ring b{font-family:Georgia,serif;font-size:25px}.cm-calorie-ring small{font-size:10px}
+.cm-macros{flex:1;display:flex;flex-direction:column;gap:14px}.cm-macro-line{display:flex;justify-content:space-between;gap:5px;font-size:11px}.cm-macro-line span{white-space:nowrap}.cm-track{height:9px;border-radius:10px;background:#e2e4d8;margin-top:7px;overflow:hidden}.cm-track i{height:100%;display:block;border-radius:10px}
+.cm-pantry-card{background:linear-gradient(160deg,#fffaf3,#fff5e9);border-color:#f0e6d8}.cm-pantry-card .cm-section-head h2{font-size:27px}.cm-pantry-list{margin-top:10px}.cm-pantry-list>a{display:flex;align-items:center;gap:9px;border-bottom:1px solid #f0e6d8;padding:12px 0;text-decoration:none;color:#25251e;font-size:11px}.cm-pantry-list>a>div{flex:1}.cm-pantry-list>a>div b{font-size:12px}.cm-food-icon{font-size:28px}.cm-pantry-line{height:7px;background:linear-gradient(90deg,#62a832 58%,#e5dfd4 58%);border-radius:20px;margin-top:9px}.cm-pantry-list>a>strong{font-size:22px}.cm-add{display:block;margin-top:20px;text-align:center;border-radius:35px;background:#ffddc3;padding:15px;text-decoration:none;color:#702a13;font-weight:700}
+.cm-warning{background:#fff1d5;border:1px solid #e8b871;padding:12px;border-radius:10px}.cm-empty,.cm-empty-small{padding:15px;color:#655b4e}.cm-mobile-nav{display:none}
+@media(max-width:1380px){.cm-right{width:300px}.cm-main{margin-right:335px}.cm-calorie-ring{width:105px;height:105px}.cm-calorie-ring>div{width:82px;height:82px}.cm-calorie-ring b{font-size:20px}.cm-shortcut{gap:7px;padding:10px}.cm-shortcut b{font-size:14px}.cm-shortcut>span{font-size:23px}}
+@media(max-width:1120px){.cm-right{position:static;width:auto;margin:0 25px 30px 235px;display:grid;grid-template-columns:1fr 1fr}.cm-leaves{display:none}.cm-main{margin-right:0}.cm-shortcuts{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.cm-side{display:none}.cm-top{margin:0;height:72px;padding:0 16px}.cm-main{margin:0;padding:16px 15px 100px}.cm-right{margin:0 15px 100px;display:flex}.cm-searchbar kbd{display:none}.cm-searchbar{height:45px}.cm-notify{display:none}.cm-avatar{width:38px;height:38px}.cm-avatar span{display:none}.cm-hero{height:320px}.cm-hero>img{width:100%;opacity:.46}.cm-hero:after{background:linear-gradient(90deg,#21130feb,#28170c77)}.cm-hero-text{padding:32px 22px}.cm-hero h1{font-size:35px}.cm-hero-actions{flex-wrap:wrap}.cm-shortcuts{gap:9px}.cm-shortcut{min-height:75px}.cm-shortcut strong{display:none}.cm-section-head h2{font-size:25px}.cm-recipe-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.cm-recipe-photo{height:110px}.cm-recipe-details h3{font-size:15px}.cm-mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:80;justify-content:space-around;background:#15371e;padding:10px 4px max(12px,env(safe-area-inset-bottom));box-shadow:0 -4px 18px #0004}.cm-mobile-nav a{color:#e7eede;text-decoration:none;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:4px}.cm-mobile-nav a span{font-size:22px}.cm-mobile-nav a.cm-active{color:#ffac72}}
+@media(max-width:410px){.cm-recipe-grid{grid-template-columns:1fr}.cm-recipe-photo{height:170px}.cm-shortcut b{font-size:13px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;animation:none!important}}
+/* Other existing pages: consistent cream canvas and panels, retain behavior */
+body:has(.cm-side) main:not(.cm-main){background:#fbf8f3!important}
+body:has(.cm-side) main:not(.cm-main) :is(h1,h2){font-family:Georgia,serif;letter-spacing:-.025em}
+
+@media(min-width:761px){body:has(.cm-side) main:not(.cm-main){margin-left:210px!important;padding-top:25px!important}body:has(.cm-side) main:not(.cm-main)>.mx-auto{max-width:1200px}}
+@media(max-width:760px){body:has(.cm-side) main:not(.cm-main){padding-bottom:110px!important}}
+
+/* Search submit is a working button, no longer a decoration. */
+.cm-search-go{cursor:pointer;background:none;border:none;font-size:28px;line-height:1;color:#243e28;padding:0 4px;}
+.cm-search-go:focus-visible{outline:2px solid #d75520;border-radius:8px;}
+.cm-searchbar input[type=search]{appearance:none;}

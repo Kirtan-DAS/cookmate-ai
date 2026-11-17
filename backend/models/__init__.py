@@ -7,6 +7,7 @@ from .database import (
     RecipeStep,
     User,
 )
+from .nutrition_profile import NutritionProfile
 
 __all__ = [
     "Base",
@@ -16,4 +17,5 @@ __all__ = [
     "Recipe",
     "RecipeIngredient",
     "RecipeStep",
+    "NutritionProfile",
 ]

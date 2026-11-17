@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -35,7 +35,7 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
+    <div className="cm-auth-page flex min-h-screen items-center justify-center bg-gray-50 p-4">
       <div className="w-full max-w-md rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
         <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">
           CookMate

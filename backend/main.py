@@ -1,3 +1,4 @@
+from routers.nutrition_intelligence import router as nutrition_intelligence_router
 import os
 from models.nutrition_profile import NutritionProfile
 from fastapi import FastAPI
@@ -14,6 +15,7 @@ from routers.recipe_ingredients import router as recipe_ingredients_router
 from routers.recipe_matches import router as recipe_matches_router
 from routers.recipe_steps import router as recipe_steps_router
 from routers.ai import router as ai_router
+from routers.nutrition import router as nutrition_router
 
 app = FastAPI(
     title="CookMate API",
@@ -53,6 +55,7 @@ app.include_router(recipes_router)
 app.include_router(recipe_ingredients_router)
 app.include_router(recipe_steps_router)
 app.include_router(ai_router)
+app.include_router(nutrition_router)
 
 
 @app.on_event("startup")
@@ -97,3 +100,6 @@ async def database_health():
             "database": "connection_failed",
             "error": str(exc),
         }
+
+
+app.include_router(nutrition_intelligence_router)

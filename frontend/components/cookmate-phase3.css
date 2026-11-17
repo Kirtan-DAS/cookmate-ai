@@ -1,0 +1,35 @@
+/* CookMate Atelier phase 3 — preserves existing application logic */
+:root{--cm-forest:#17391f;--cm-orange:#e75d27;--cm-cream:#fbf8f3;--cm-line:#e9ddce}
+.cm-detail-page,.cm-cook-page{background:radial-gradient(circle at 95% 4%,#eef3dc 0,transparent 28%),#fbf8f3!important;min-height:100vh;color:#1b2c20}
+.cm-detail-page>div,.cm-cook-page>div{max-width:920px!important}
+.cm-detail-page section,.cm-cook-page section{border:1px solid var(--cm-line);border-radius:28px!important;background:#fffdf9!important;box-shadow:0 16px 48px #293d2220!important}
+.cm-detail-page section{padding:clamp(24px,5vw,48px)!important}
+.cm-detail-page h1,.cm-cook-page h1{font-family:Georgia,serif!important;letter-spacing:-.035em;color:#17391f!important;line-height:1.13}
+.cm-detail-page h1{font-size:clamp(34px,5vw,56px)!important}
+.cm-detail-page p,.cm-cook-page p{line-height:1.65}
+.cm-detail-page a[href='/recipes'],.cm-cook-page a[href='/recipes'],.cm-cook-page a[href*='/recipes/']{color:#b84e24!important;text-decoration:none!important;font-weight:700}
+.cm-detail-page a[href$='/cook'],.cm-cook-page button{border-radius:999px!important;background:linear-gradient(100deg,#e65c25,#c94119)!important;color:white!important;box-shadow:0 7px 18px #df501b22;transition:transform .15s,box-shadow .15s}
+.cm-cook-page button:hover,.cm-detail-page a[href$='/cook']:hover{transform:translateY(-2px);box-shadow:0 10px 20px #df501b33}
+.cm-cook-page button:disabled{opacity:.5!important;cursor:not-allowed!important}
+.cm-cook-page section{padding:clamp(22px,4vw,42px)!important}
+.cm-cook-page section h1{font-size:clamp(28px,4vw,42px)!important}
+.cm-cook-page .bg-gray-200{background:#e9e8da!important}
+.cm-cook-page .bg-black,.cm-cook-page .bg-gray-900{background:var(--cm-forest)!important}
+.cm-cook-page .rounded-full.bg-black{background:linear-gradient(90deg,#e96b2b,#6b9a4f)!important}
+.cm-cook-page section .bg-gray-50{background:#f1f4e8!important;border-radius:22px!important;border:1px solid #e2e9d8}
+.cm-cook-page section .text-5xl{color:#a54720}
+.cm-auth-page{min-height:100vh!important;background:radial-gradient(circle at 10% 20%,#e5efd6 0,transparent 35%),radial-gradient(circle at 90% 85%,#fae3d1 0,transparent 40%),#fbf8f3!important;padding:30px 16px!important}
+.cm-auth-page>div{max-width:470px!important;background:#fffdf9!important;border:1px solid var(--cm-line)!important;border-radius:28px!important;box-shadow:0 20px 75px #2a3b2521!important;padding:clamp(25px,4vw,44px)!important}
+.cm-auth-page h1{font-family:Georgia,serif!important;color:#17391f!important;font-size:clamp(29px,4vw,37px)!important;letter-spacing:-.035em}
+.cm-auth-page input{border-radius:13px!important;border-color:#dddfd1!important;background:#fff!important;min-height:46px}
+.cm-auth-page input:focus-visible{outline:2px solid #a8c596!important;outline-offset:1px}
+.cm-auth-page button[type='submit']{border-radius:100px!important;background:#e45b25!important;min-height:48px;font-weight:700}
+.cm-auth-page a,.cm-auth-page .text-emerald-600{color:#ad4b24!important}
+.cm-auth-page .text-xs.uppercase{letter-spacing:.2em;color:#4f7e48!important}
+.cm-onboard-page{background:#fbf8f3!important;color:#17391f;min-height:100vh!important}
+.cm-onboard-page h1,.cm-onboard-page h2{font-family:Georgia,serif!important;letter-spacing:-.03em;color:#17391f!important}
+.cm-onboard-page button[type='submit'],.cm-onboard-page button.bg-emerald-600,.cm-onboard-page button.bg-black{background:#e45b25!important;border-radius:100px!important}
+.cm-onboard-page input,.cm-onboard-page select{border-radius:12px!important;border-color:#e2d9cc!important}
+.cm-onboard-page .bg-white{background:#fffdf9!important;border-color:#ebe1d4!important}
+@media(max-width:640px){.cm-detail-page,.cm-cook-page{padding:22px 14px!important}.cm-detail-page section,.cm-cook-page section{padding:23px 19px!important}.cm-auth-page>div{padding:24px!important}}
+@media(prefers-reduced-motion:reduce){.cm-cook-page button,.cm-detail-page a[href$='/cook']{transition:none!important}}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import RecipeNutrition from "@/components/RecipeNutrition";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
@@ -62,7 +63,7 @@ export default function RecipeDetailsPage({
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-gray-50 p-10">
+      <main className="cm-detail-page min-h-screen bg-gray-50 p-10">
         <div className="mx-auto max-w-4xl">
           <p className="text-gray-600">Loading recipe...</p>
         </div>
@@ -72,7 +73,7 @@ export default function RecipeDetailsPage({
 
   if (error || !recipe) {
     return (
-      <main className="min-h-screen bg-gray-50 p-10">
+      <main className="cm-detail-page min-h-screen bg-gray-50 p-10">
         <div className="mx-auto max-w-4xl">
           <p className="text-red-600">
             {error || "Recipe not found."}
@@ -90,7 +91,7 @@ export default function RecipeDetailsPage({
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 px-6 py-10">
+    <main className="cm-detail-page min-h-screen bg-gray-50 px-6 py-10">
       <div className="mx-auto max-w-4xl">
 
         <Link
@@ -118,34 +119,7 @@ export default function RecipeDetailsPage({
             </p>
           )}
 
-          <div className="mt-8">
-
-            <h2 className="mb-4 text-2xl font-semibold text-gray-900">
-              🥕 Ingredients
-            </h2>
-
-            <div className="space-y-3">
-              {recipe.ingredients.map((ingredient) => (
-                <div
-                  key={ingredient.id}
-                  className="flex items-center justify-between rounded-xl bg-gray-50 px-5 py-4"
-                >
-                  <span className="font-medium text-gray-900">
-                    {ingredient.name}
-                  </span>
-
-                  <span className="text-gray-600">
-                    {ingredient.quantity ?? ""}
-                    {ingredient.unit
-                      ? ` ${ingredient.unit}`
-                      : ""}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-          </div>
-
+          <RecipeNutrition recipeId={recipe.id} />
           {/* START COOKING */}
 
           <div className="mt-10 border-t border-gray-200 pt-8">

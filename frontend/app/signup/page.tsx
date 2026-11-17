@@ -67,7 +67,7 @@ export default function SignupPage() {
 
   return (
     <main className="min-h-screen bg-neutral-50 px-6 py-12">
-      <div className="mx-auto flex min-h-[80vh] max-w-md items-center">
+      <div className="cm-auth-page mx-auto flex min-h-[80vh] max-w-md items-center">
         <section className="w-full rounded-3xl border border-neutral-200 bg-white p-8 shadow-sm">
           <div className="mb-8">
             <p className="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-green-700">

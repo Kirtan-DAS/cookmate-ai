@@ -145,7 +145,7 @@ export default function CookingPage({
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-gray-50 p-10">
+      <main className="cm-cook-page min-h-screen bg-gray-50 p-10">
         <div className="mx-auto max-w-3xl">
           <p className="text-gray-600">
             Loading cooking mode...
@@ -157,7 +157,7 @@ export default function CookingPage({
 
   if (error) {
     return (
-      <main className="min-h-screen bg-gray-50 p-10">
+      <main className="cm-cook-page min-h-screen bg-gray-50 p-10">
         <div className="mx-auto max-w-3xl">
           <p className="text-red-600">{error}</p>
 
@@ -174,7 +174,7 @@ export default function CookingPage({
 
   if (steps.length === 0) {
     return (
-      <main className="min-h-screen bg-gray-50 p-10">
+      <main className="cm-cook-page min-h-screen bg-gray-50 p-10">
         <div className="mx-auto max-w-3xl">
           <h1 className="text-3xl font-bold text-gray-900">
             No cooking steps found
@@ -193,7 +193,7 @@ export default function CookingPage({
 
   if (currentStep >= steps.length) {
     return (
-      <main className="min-h-screen bg-gray-50 px-6 py-10">
+      <main className="cm-cook-page min-h-screen bg-gray-50 px-6 py-10">
         <div className="mx-auto max-w-3xl">
           <div className="rounded-2xl bg-white p-10 text-center shadow-sm">
             <div className="text-6xl">
@@ -233,7 +233,7 @@ export default function CookingPage({
     ((currentStep + 1) / steps.length) * 100;
 
   return (
-    <main className="min-h-screen bg-gray-50 px-6 py-10">
+    <main className="cm-cook-page min-h-screen bg-gray-50 px-6 py-10">
       <div className="mx-auto max-w-3xl">
         <Link
           href={`/recipes/${step.recipe_id}`}

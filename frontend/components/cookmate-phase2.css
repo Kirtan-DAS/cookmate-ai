@@ -1,0 +1,26 @@
+/* CookMate Atelier phase 2: existing functionality, redesigned surfaces */
+:root{--cm-cream:#fbf8f3;--cm-green:#17371d;--cm-warm:#ed581c;--cm-line:#e9dece}
+.atelier-recipes,.cm-pantry-page,.cm-nutrition-page{background:var(--cm-cream)!important;color:#26251d!important}
+/* The sidebar and top toolbar are fixed by Navbar; content starts to their right. */
+.atelier-recipes .atelier-content,.cm-pantry-page .cm-pantry-content{margin-left:210px!important;margin-right:0!important;max-width:none!important;padding:32px clamp(18px,3vw,52px) 70px!important}
+.cm-nutrition-page{margin-left:210px!important;min-height:calc(100vh - 88px)!important;padding:32px clamp(18px,3vw,52px) 70px!important}
+.atelier-recipes h1,.cm-pantry-page h1,.cm-nutrition-page h1,.atelier-recipes h2,.cm-pantry-page h2,.cm-nutrition-page h2{font-family:Georgia,'Times New Roman',serif!important;letter-spacing:-.03em!important;color:#1c301c!important}
+.atelier-recipes h1,.cm-pantry-page h1,.cm-nutrition-page h1{font-weight:600!important}
+.atelier-recipes :is(article,section,div).rounded-3xl,.cm-pantry-page :is(article,section,div).rounded-3xl,.cm-nutrition-page .rounded-xl{border-color:#eadccd!important;border-radius:22px!important;box-shadow:0 8px 24px #3c29100c!important}
+.cm-pantry-page section.rounded-3xl,.cm-nutrition-page .rounded-xl{background:#fffcf7!important}
+.atelier-recipes .atelier-recipe-card{background:#fffcf7!important;border:1px solid #e9dac8!important;border-radius:22px!important;box-shadow:0 8px 22px #3c291012!important;transition:transform .18s,box-shadow .18s}
+.atelier-recipes .atelier-recipe-card:hover{transform:translateY(-3px);box-shadow:0 15px 35px #3c291020!important}
+.atelier-recipes :is(button,a).bg-green-600,.cm-pantry-page :is(button,a).bg-green-600,.cm-nutrition-page :is(button,a).bg-emerald-600{background:#e55a21!important;color:#fff!important}
+.atelier-recipes :is(button,a).bg-emerald-600,.cm-pantry-page :is(button,a).bg-emerald-600{background:#e55a21!important}
+.atelier-recipes button,.cm-pantry-page button,.cm-nutrition-page button,.atelier-recipes input,.cm-pantry-page input,.cm-nutrition-page input,.atelier-recipes select,.cm-pantry-page select{transition:border-color .15s,background .15s,box-shadow .15s}
+.atelier-recipes :is(button,input,select):focus-visible,.cm-pantry-page :is(button,input,select):focus-visible,.cm-nutrition-page :is(button,input,select):focus-visible{outline:3px solid #ef9b65;outline-offset:2px}
+.cm-pantry-page article{border-radius:20px!important;border-color:#eadccc!important;background:#fffcf7!important;box-shadow:0 3px 13px #4430160e}
+.cm-pantry-page input,.cm-pantry-page select,.atelier-recipes input,.atelier-recipes select{background:#fffdf9}
+.cm-nutrition-page .rounded-xl.bg-white{background:#fffcf7!important}
+.cm-nutrition-page .bg-emerald-600{background:#498d37!important}
+.cm-nutrition-page .text-emerald-700{color:#b34b22!important}
+/* Improve details and cooking pages without rewriting their API/timer behavior */
+body:has(a[href="/recipes"]) main.bg-gray-50{background:var(--cm-cream)!important}
+body:has(a[href="/recipes"]) main.bg-gray-50>div>section.bg-white{background:#fffcf7!important;border:1px solid #e9dccb;border-radius:24px!important}
+@media(max-width:760px){.atelier-recipes .atelier-content,.cm-pantry-page .cm-pantry-content,.cm-nutrition-page{margin-left:0!important;padding:20px 15px 110px!important}.cm-pantry-page .grid,.atelier-recipes .grid{min-width:0}}
+@media(prefers-reduced-motion:reduce){.atelier-recipes *,.cm-pantry-page *,.cm-nutrition-page *{transition:none!important}}
