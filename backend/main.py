@@ -1,4 +1,5 @@
 import os
+from models.nutrition_profile import NutritionProfile
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
