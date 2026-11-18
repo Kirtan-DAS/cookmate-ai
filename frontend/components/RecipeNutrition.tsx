@@ -7,6 +7,9 @@ const API = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
 type Calculation = {
   ingredient_states?: Record<string,string>;
   complete: boolean;
+  verified_subtotal?: Record<string, number | null>;
+  verified_ingredient_count?: number;
+  total_ingredient_count?: number;
   scaled_ingredients: { id?: number; nutrition_state?: "dry"|"cooked"|null; assumed_state?: boolean; name: string; original_quantity: string | null; prepared_quantity: string | null; unit: string | null }[];
   unresolved_ingredients: { name: string; reason: string }[];
   consumed_nutrition: Record<string, number | null>;
@@ -53,7 +56,7 @@ export default function RecipeNutrition({ recipeId }: { recipeId: number }) {
     return json;
   }
   async function calculate(){setBusy(true);setMessage("");setData(null);try{const result=await request(`/api/nutrition-intelligence/recipes/${recipeId}/calculate`,{base_servings:base,prepared_servings:prepared,eaten_servings:eaten,ingredient_states:states});setData(result);setCalculatedFor(signature);}catch(e){setMessage(e instanceof Error?e.message:"Calculation failed");}finally{setBusy(false);}}
-  async function save(){setBusy(true);setMessage("");try{await request("/api/nutrition-intelligence/meals",{recipe_id:recipeId,base_servings:base,prepared_servings:prepared,eaten_servings:eaten,ingredient_states:states});setMessage("Meal recorded in your nutrition diary.");}catch(e){setMessage(e instanceof Error?e.message:"Could not log meal");}finally{setBusy(false);}}
+  async function save(){setBusy(true);setMessage("");try{const saved=await request("/api/nutrition-intelligence/meals",{recipe_id:recipeId,base_servings:base,prepared_servings:prepared,eaten_servings:eaten,ingredient_states:states});setMessage(saved.complete ? "Meal recorded in your nutrition diary." : "Meal recorded. Its nutrition values remain incomplete until every ingredient has a reference.");}catch(e){setMessage(e instanceof Error?e.message:"Could not log meal");}finally{setBusy(false);}}
   useEffect(() => {
     // Recalculate after portion changes. Ignore stale results on unmount.
     let cancelled = false;
@@ -101,9 +104,14 @@ export default function RecipeNutrition({ recipeId }: { recipeId: number }) {
         <p className="mt-1 text-sm text-amber-900">Nutrition currently assumes dry (uncooked) dal. Cooked dal has different calories and weight per cup. Select the ingredient state to calculate and save accurately.</p>
         {data.scaled_ingredients.filter(i=>i.name.trim().toLowerCase()==="toor dal").map(i=><label key={i.id??i.name} className="mt-3 flex items-center gap-3 text-sm font-medium">{i.name}<select value={states[String(i.id)]??"dry"} onChange={e=>changeState(String(i.id),e.target.value as "dry"|"cooked")} className="rounded-lg border border-amber-400 bg-white p-2"><option value="dry">Dry / uncooked</option><option value="cooked">Cooked / boiled</option></select><button type="button" onClick={()=>changeState(String(i.id),states[String(i.id)]??"dry")} className="rounded-lg bg-amber-900 px-3 py-2 text-white">Confirm</button></label>)}
       </div>}
-      <div><h3 className="font-semibold">Nutrition for {eaten} {eaten===1?"serving":"servings"} eaten</h3><div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">{fields.map(([key,label,unit])=><div key={key} className="rounded-xl bg-emerald-50 p-3"><p className="text-xs text-gray-600">{label}</p><p className="mt-1 text-lg font-bold">{data.consumed_nutrition[key]==null?"Unknown":`${data.consumed_nutrition[key]} ${unit}`}</p></div>)}</div></div>
+      <div><h3 className="font-semibold">Nutrition for {eaten} {eaten===1?"serving":"servings"} eaten</h3><div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">{fields.map(([key,label,unit])=><div key={key} className="rounded-xl bg-emerald-50 p-3"><p className="text-xs text-gray-600">{label}</p><p className="mt-1 text-lg font-bold">{data.complete ? (data.consumed_nutrition[key]==null?"Unknown":`${data.consumed_nutrition[key]} ${unit}`) : (data.verified_subtotal?.[key]==null?"Unknown":`${data.verified_subtotal[key]} ${unit} known`)}</p></div>)}</div></div>
+      {!data.complete && (data.verified_ingredient_count??0)>0 && <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm">
+        <h4 className="font-semibold">Verified subtotal from {data.verified_ingredient_count} of {data.total_ingredient_count} ingredients</h4>
+        <p className="mt-1 text-xs">These values only include matched ingredients. They are NOT the total nutrition for this meal.</p>
+        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">{fields.map(([key,label,unit])=><div key={key} className="rounded-lg bg-white p-2"><span className="block text-xs">{label}</span><strong>{data.verified_subtotal?.[key]==null?"Not available":`${data.verified_subtotal[key]} ${unit}`}</strong></div>)}</div>
+      </div>}
       {!data.complete&&<div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm"><p>Nutrition is incomplete; unavailable values are not estimated.</p><button type="button" aria-expanded={detailsOpen} onClick={()=>setDetailsOpen(v=>!v)} className="mt-2 font-medium text-amber-900 underline">{detailsOpen?"Hide details":"Why are values missing?"}</button>{detailsOpen&&<div className="mt-2 space-y-1">{data.unresolved_ingredients.map((i,index)=><p key={index}>{i.name}: {i.reason}</p>)}{data.missing_nutrient_data.length>0&&<p>Some nutrients lack reference data.</p>}</div>}</div>}
-      <button type="button" disabled={!data.complete||data.scaled_ingredients.some(i=>i.assumed_state)||eaten<=0||busy} onClick={save} className="rounded-xl bg-black px-5 py-3 font-semibold text-white disabled:opacity-40">Log {eaten} servings eaten</button>
+      <button type="button" disabled={data.scaled_ingredients.some(i=>i.assumed_state)||eaten<=0||busy} onClick={save} className="rounded-xl bg-black px-5 py-3 font-semibold text-white disabled:opacity-40">{data.complete?`Log ${eaten} servings eaten`:`Log meal (${eaten} servings; nutrition incomplete)`}</button>
     </div>}
   </section>;
 }

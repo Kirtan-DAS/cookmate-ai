@@ -78,6 +78,13 @@ async def compute(db, recipe_id, req):
         ambiguous_dal = name.casefold() in ('toor dal', 'tur dal', 'arhar dal')
         effective_name = f'toor dal ({state or "dry"})' if ambiguous_dal else name
         canonical, match_error = identify(effective_name)
+        # Safe fallback: check the actual reference catalogue, not a guessed food.
+        if canonical is None:
+            exact_name = ' '.join(effective_name.strip().casefold().split())
+            for candidate in (exact_name, exact_name[:-1] if exact_name.endswith('s') else exact_name):
+                if candidate in lookup:
+                    canonical, match_error = candidate, None
+                    break
         grams = to_grams(ing.quantity, ing.unit, canonical) if canonical else None
         try:
             original = parse_amount(ing.quantity)
@@ -107,7 +114,15 @@ async def compute(db, recipe_id, req):
     result = calculate_nutrition(NutritionCalculationInput(
         base_servings=req.base_servings, prepared_servings=req.prepared_servings,
         eaten_servings=req.eaten_servings, ingredients=valid))
-    # No complete totals when even one recipe ingredient was excluded.
+    # Keep a source-backed known-ingredient subtotal, distinct from the full recipe.
+    # An unresolved ingredient must NEVER be silently counted as zero.
+    sourced = [i for i in valid if i.food is not None]
+    partial = calculate_nutrition(NutritionCalculationInput(
+        base_servings=req.base_servings, prepared_servings=req.prepared_servings,
+        eaten_servings=req.eaten_servings, ingredients=sourced)) if sourced else None
+    result['verified_subtotal'] = partial['consumed_nutrition'] if partial else {k: None for k in NUTRIENTS}
+    result['verified_ingredient_count'] = len(sourced)
+    result['total_ingredient_count'] = len(rows)
     if excluded:
         for section in ('batch_nutrition', 'per_serving_nutrition', 'consumed_nutrition'):
             result[section] = {k: None for k in NUTRIENTS}
@@ -125,8 +140,9 @@ async def log_meal(req: LogRequest, current_user: User = Depends(get_current_use
     result = await compute(db, req.recipe_id, req)
     if any(i.get('assumed_state') for i in result['scaled_ingredients']):
         raise HTTPException(status_code=422, detail='Choose dry or cooked for Toor Dal before logging')
-    if not result['complete']:
-        raise HTTPException(status_code=422, detail='Nutrition data is incomplete. Resolve ingredient quantities and nutrient references before logging.')
+    # Food journaling must work even if nutrient references are incomplete.
+    # We save null nutrients plus missing-ingredient diagnostics; never fabricate values.
+    # The UI explicitly tells users the nutrition totals are incomplete.
     row = (await db.execute(text('''
         INSERT INTO public.nutrition_meal_logs
         (user_id, recipe_id, recipe_title, prepared_servings, eaten_servings, nutrient_snapshot, ingredient_snapshot)
@@ -135,9 +151,9 @@ async def log_meal(req: LogRequest, current_user: User = Depends(get_current_use
     '''), {'user_id': current_user.id, 'recipe_id': req.recipe_id, 'title': result['recipe_title'],
            'prepared': req.prepared_servings, 'eaten': req.eaten_servings,
            'nutrients': __import__('json').dumps(result['consumed_nutrition']),
-           'ingredients': __import__('json').dumps(result['scaled_ingredients'])})).mappings().one()
+           'ingredients': __import__('json').dumps(result['scaled_ingredients'] + [{'nutrition_metadata': {'complete': result['complete'], 'unresolved_ingredients': result['unresolved_ingredients'], 'missing_nutrient_data': result['missing_nutrient_data']}}])})).mappings().one()
     await db.commit()
-    return {'id': str(row['id']), 'consumed_at': row['consumed_at'].isoformat(), 'nutrition': result['consumed_nutrition']}
+    return {'id': str(row['id']), 'consumed_at': row['consumed_at'].isoformat(), 'nutrition': result['consumed_nutrition'], 'complete': result['complete']}
 
 @router.get('/daily')
 async def daily(day: date | None = None, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
@@ -150,16 +166,19 @@ async def daily(day: date | None = None, current_user: User = Depends(get_curren
         ORDER BY consumed_at DESC
     '''), {'user_id': current_user.id, 'start': start, 'end': end})).mappings().all()
     totals = {k: 0.0 for k in NUTRIENTS}
+    incomplete = set()
     for row in rows:
         for k in NUTRIENTS:
             v = row['nutrient_snapshot'].get(k)
-            if v is not None:
+            if v is None:
+                incomplete.add(k)
+            else:
                 totals[k] += float(v)
     profile = await db.get(NutritionProfile, current_user.id)
     goals = {'calories_kcal': profile.daily_calorie_target if profile else None,
              'protein_g': profile.daily_protein_target_g if profile else None,
              'fiber_g': profile.daily_fiber_target_g if profile else None}
-    return {'date': target.isoformat(), 'timezone': 'UTC', 'totals': {k: round(v, 2) for k,v in totals.items()},
+    return {'date': target.isoformat(), 'timezone': 'UTC', 'totals': {k: (None if k in incomplete else round(v, 2)) for k,v in totals.items()}, 'incomplete_nutrients': sorted(incomplete),
             'goals': goals, 'meals': [{'id': str(r['id']), 'recipe_title': r['recipe_title'],
              'eaten_servings': float(r['eaten_servings']), 'consumed_at': r['consumed_at'].isoformat(),
              'nutrients': r['nutrient_snapshot']} for r in rows]}

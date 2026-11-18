@@ -209,9 +209,11 @@ Each recipe must have these fields:
 Requirements:
 - Maximum 8 ingredients per recipe.
 - Maximum 5 short cooking steps per recipe.
-- Prefer ingredients already in the pantry.
-- Respect all dietary restrictions.
+- Prefer real, established dishes and ingredients already in the pantry (dal, vegetables, egg, curd, whole grains if compatible).
+- Favor nutrient-dense meals with credible protein and fiber sources; avoid inventing nutrient values or protein quantities.
+- Respect all stated dietary restrictions; if safety/compliance is uncertain, do not claim the meal satisfies it.
 - Consider nutrition goals and food preferences.
+- The site's EXISTING saved recipes are displayed before these optional AI ideas.
 - Do not invent nutritional values.
 - Do not claim pantry quantities were changed.
 - Use realistic cooking instructions and quantities.

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import PantryNutritionPicks from "@/components/PantryNutritionPicks";
 import { supabase } from "@/lib/supabase";
 import "@/components/atelier.css";
 
@@ -337,6 +338,7 @@ export default function RecipesPage() {
           </div>
         )}
 
+        <PantryNutritionPicks />
         {/* ============================================ */}
         {/* COOKMATE AI SECTION */}
         {/* ============================================ */}

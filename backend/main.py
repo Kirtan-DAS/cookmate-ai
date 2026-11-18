@@ -1,3 +1,4 @@
+from routers.nutrition_picks import router as nutrition_picks_router
 from routers.nutrition_intelligence import router as nutrition_intelligence_router
 import os
 from models.nutrition_profile import NutritionProfile
@@ -103,3 +104,4 @@ async def database_health():
 
 
 app.include_router(nutrition_intelligence_router)
+app.include_router(nutrition_picks_router)
